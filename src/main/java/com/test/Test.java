@@ -3,6 +3,7 @@ package com.test;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 import com.machinepublishers.jbrowserdriver.Timezone;
+import com.machinepublishers.jbrowserdriver.UserAgent;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -93,8 +94,8 @@ public class Test {
      */
     private String jbrowserToHtml(String url) {
         String tmp;
-        JBrowserDriver driver = new JBrowserDriver(Settings.builder().timezone(Timezone.ASIA_SHANGHAI).build());
-        driver.get(TARGET_URL);
+        JBrowserDriver driver = new JBrowserDriver(Settings.builder().timezone(Timezone.ASIA_SHANGHAI).userAgent(UserAgent.CHROME).build());
+        driver.get(url);
         tmp = driver.getPageSource();
         driver.quit();
         return tmp;
