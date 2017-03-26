@@ -3,7 +3,6 @@ package com.test;
 import com.machinepublishers.jbrowserdriver.JBrowserDriver;
 import com.machinepublishers.jbrowserdriver.Settings;
 import com.machinepublishers.jbrowserdriver.Timezone;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -27,36 +26,24 @@ public class Test {
     static final String MATCH_DATE = "date";
     static final String MATCH_BATTLE = "battle";
     static final String MATCH_STATUS = "status";
-    static String htmlSource;
+    static final String MATCH_URL = "url";
     static List<Map> dataList = new ArrayList<Map>();
     static List<String> matchIdList = new ArrayList();
-    Elements matchMessageHeader;
-    Elements matchMessageContent;
 
-    private void spiderHTML() throws Exception {
-        /***
-         * 模拟浏览器获取动态网页内容
-         */
-        JBrowserDriver driver = new JBrowserDriver(Settings.builder().timezone(Timezone.ASIA_SHANGHAI).build());
-        driver.get(TARGET_URL);
-        htmlSource = driver.getPageSource();
-//        System.out.println(htmlSource);
-        driver.quit();
-
-        /***
-         * 利用JSoup抓取网页内有用信息
-         */
+    /***
+     * 利用JSoup抓取网页内有用信息
+     * @param htmlSource 目标网页内容字符串
+     * @throws Exception 解析异常
+     */
+    private void jsoupToHtmlStr(String htmlSource) throws Exception {
         try {
             Document doc = Jsoup.parseBodyFragment(htmlSource,TARGET_URL);
-//            System.out.println(doc);
 
             Elements content = doc.select("div[role=main]");
             Elements liClass = content.select("li[class]");
-//            System.out.println(liClass);
 
             for (Element link : liClass) {
                 String str = link.className();
-//                System.out.println(str);
                 String regEx="[^0-9]";
                 Pattern p = Pattern.compile(regEx);
                 Matcher m = p.matcher(str);
@@ -68,43 +55,53 @@ public class Test {
 
             for (String matchIdTmp: matchIdList) {
                 Element matchMessage = doc.getElementById(matchIdTmp);
-                matchMessageHeader = matchMessage.select("div[data-role=header] > h1");
-//                System.out.println(matchMessageHeader);
-                matchMessageContent = matchMessage.select("div[data-role=content] > a");
+                Elements matchMessageHeader = matchMessage.select("div[data-role=header] > h1");
+                Elements matchMessageContent = matchMessage.select("div[data-role=content] > a");
 
                 Map<String, String> messageTmp = new HashMap<String, String>();
                 Element tmp;
                 for (int i = 0; i < matchMessageHeader.size(); i++) {
                     tmp = matchMessageHeader.get(i);
                     if (i == 0) {
-                        messageTmp.put(MATCH_DATE,tmp.text());
+                        messageTmp.put(MATCH_DATE, tmp.text());
                     }
                     if (i == 1) {
-                        messageTmp.put(MATCH_BATTLE,tmp.text());
+                        messageTmp.put(MATCH_BATTLE, tmp.text());
                     }
                     if (i == 2) {
                         tmp.select("span[style]").remove();
-                        messageTmp.put(MATCH_STATUS,tmp.text());
+                        messageTmp.put(MATCH_STATUS, tmp.text());
                     }
                 }
-                dataList.add(messageTmp);
 
-                for (Element matchMessageContentTmp:matchMessageContent) {
-                    System.out.println(matchMessageContentTmp.attr("href"));
-                }
+                tmp = matchMessageContent.first();
+                messageTmp.put(MATCH_URL,TARGET_URL + tmp.attr("href"));
+
+                dataList.add(messageTmp);
             }
-            System.out.println(dataList.get(0));
+            System.out.println(dataList);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+    }
 
-
+    /***
+     * 模拟浏览器获取动态网页内容
+     * @param url 目标网页地址
+     */
+    private String jbrowserToHtml(String url) {
+        String tmp;
+        JBrowserDriver driver = new JBrowserDriver(Settings.builder().timezone(Timezone.ASIA_SHANGHAI).build());
+        driver.get(TARGET_URL);
+        tmp = driver.getPageSource();
+        driver.quit();
+        return tmp;
     }
 
     public static void main(String[] args) throws Exception {
         Test test = new Test();
-        test.spiderHTML();
+        test.jsoupToHtmlStr(test.jbrowserToHtml(TARGET_URL));
     }
 
 }
