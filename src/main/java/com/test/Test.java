@@ -27,13 +27,14 @@ public class Test {
     static final String MATCH_BATTLE = "battle";
     static final String MATCH_STATUS = "status";
     static final String MATCH_URL = "url";
+
     static List<Map> dataList = new ArrayList<Map>();
     static List<String> matchIdList = new ArrayList();
 
     /***
      * 利用JSoup抓取网页内有用信息
      * @param htmlSource 目标网页内容字符串
-     * @throws Exception 解析异常
+     * @throws Exception 解析抛出异常
      */
     private void jsoupToHtmlStr(String htmlSource) throws Exception {
         try {
