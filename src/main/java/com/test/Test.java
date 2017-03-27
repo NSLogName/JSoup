@@ -9,10 +9,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -37,7 +34,7 @@ public class Test {
      * @param htmlSource 目标网页内容字符串
      * @throws Exception 解析抛出异常
      */
-    private void jsoupToHtmlStr(String htmlSource) throws Exception {
+    private List jsoupToHtmlStr(String htmlSource) throws Exception {
         try {
             Document doc = Jsoup.parseBodyFragment(htmlSource,TARGET_URL);
 
@@ -81,11 +78,11 @@ public class Test {
 
                 dataList.add(messageTmp);
             }
-            System.out.println(dataList);
         }
         catch (Exception e){
             e.printStackTrace();
         }
+        return dataList;
     }
 
     /***
@@ -101,9 +98,11 @@ public class Test {
         return tmp;
     }
 
+
     public static void main(String[] args) throws Exception {
         Test test = new Test();
-        test.jsoupToHtmlStr(test.jbrowserToHtml(TARGET_URL));
+        List list = test.jsoupToHtmlStr(test.jbrowserToHtml(TARGET_URL));
+        System.out.println(list);
     }
 
 }
